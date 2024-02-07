@@ -1,6 +1,5 @@
-from db import db as employeeCollection
-import constants as constant
-from flask import Flask, make_response, request
+from db import db, employeeCollection
+from flask import Flask, make_response, request, Response
 from controllers.login import LoginController
 from collections import namedtuple
 import json
@@ -11,11 +10,18 @@ port = 3002
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
-   collection = employeeCollection
-   data = collection.find_one({}, {'_id': 0})
-   response = make_response(data)
-   response.headers['Content-Type'] = 'application/json'
-   return response
+   try:
+      collection = employeeCollection
+      data = collection.find_one({}, {'_id': 0})
+      response = make_response(data)
+      response.headers['Content-Type'] = 'application/json'
+      return response   
+   except Exception as e:
+      return Response(
+         status=400,
+         response={"message": "something went wrong"},
+         headers={"Content-Type": "application/json"}
+      )
 
 def CustomHook(obj):
    return namedtuple('X', obj.keys())(*obj.values())
